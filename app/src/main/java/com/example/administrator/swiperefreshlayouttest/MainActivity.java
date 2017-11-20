@@ -21,6 +21,8 @@ import android.widget.ImageButton;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 import com.example.administrator.swiperefreshlayouttest.myswiprefreshlayout.CustomProgressDrawable;
 import com.example.administrator.swiperefreshlayouttest.myswiprefreshlayout.CustomSwipeRefreshLayout;
 
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btSend;
     private ViewPager emojiPanel;
     //private MomentsListAdapter adapter;
-    private MyRecycleViewAdapter adapter;
+
     private ArrayList beanList;
 
     @Override
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         beanList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            beanList.add("item" + i + 1);
+            beanList.add("item" + (i + 1));
         }
         setRecyclerView(beanList, R.layout.support_simple_spinner_dropdown_item);
 
@@ -121,73 +123,34 @@ public class MainActivity extends AppCompatActivity {
         //true:进行反转
         final LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(manager);
-        mRecyclerView.setAdapter(new MyRecycleViewAdapter(data, layout, this, true) {
-            @Override
-            protected void setPositionClick(int position) {
-//                Intent intent = new Intent(ListActivity.this,DetailedInfoActivity.class);
-//                intent.putExtra("positions",positions);
-//                startActivity(intent);
-                Toast.makeText(MainActivity.this, "positionClick:" + position, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            protected void initData(MyViewHolder holder, int position) {
-//                DetailsInfo info = (DetailsInfo) data.get(position);
-//                setHolderData(data,info,holder,position);
-            }
-        });
-        //滚动监听，在滚动监听里面去实现加载更多的功能
-//        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//            }
-//
-//            @Override
-//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                super.onScrolled(recyclerView, dx, dy);
-//                int lastVisibleItemPosition = manager.findLastVisibleItemPosition();
-//                if (lastVisibleItemPosition + 1 == mRecyclerView.getAdapter().getItemCount()) {
-//
-//
-////                    if (!isLoading) {//一个布尔的变量，默认是false
-////                        isLoading = true;
-////                        Log.e("TAG", "page==" + page);
-////                        handler.postDelayed(new Runnable() {
-////                            @Override
-////                            public void run() {
-////                                getDataFromeNet();
-////                            }
-////                        }, 2000);
-//                    // } else
-//                    if (page == 3) {
-//                        //当没有更多的数据的时候去掉加载更多的布局
-//                        MyRecycleViewAdapter adapter = (MyRecycleViewAdapter) mRecyclerView.getAdapter();
-//                        adapter.setIsNeedMore(false);
-//                        adapter.notifyDataSetChanged();
-//                    }
-//                }
-//            }
-//        });
+        MyAdapter adapter = new MyAdapter(beanList);
+        mRecyclerView.setAdapter(adapter);
     }
 
-    private int page = 0;
-
     /**
-     * 上拉加载更多
+     * recycleview的适配器
+     *第一个泛型是数据类型，第二个泛型是Viewholder
      */
-//    private void getDataFromeNet() {
-//        for (int i = 0; i < 6; i++) {
-//            DetailsInfo detailsInfo = new DetailsInfo("宝马4S店"+i+i,"小李","2016.2.3","合格");
-//            data.add(detailsInfo);
-//        }
-//        page++;
-//        if(page!=3) {
-//            isLoading = false;
-//        }else {
-//            isLoading = true;
-//        }
-//        mRecyclerView.getAdapter().notifyDataSetChanged();
-//    }
+    public class MyAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
+        public MyAdapter(List<String> data) {
+            //注意：布局需要自己手动设置，忘记设置布局会报出错误
+            super(R.layout.support_simple_spinner_dropdown_item, data);
+        }
+        @Override
+        protected void convert(final BaseViewHolder holder, String item) {
+//            TextView textView = helper.getView(R.id.tv_outter_adapter_text);
+//            textView.setText(item);
+            //可以将将值直接设置给tv_outter_adapter_text控件，原理请自行阅读源代码
+            holder.setText(android.R.id.text1, item)
+                    .setTextColor(android.R.id.text1, Color.RED);
+            //给条目设置点击事件
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(MainActivity.this, "点击了" + holder.getLayoutPosition(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 
 }
